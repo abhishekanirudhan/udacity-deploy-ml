@@ -1,5 +1,5 @@
 from sklearn.metrics import fbeta_score, precision_score, recall_score
-
+from sklearn.ensemble import GradientBoostingClassifier
 
 # Optional: implement hyperparameter tuning.
 def train_model(X_train, y_train):
@@ -10,6 +10,7 @@ def train_model(X_train, y_train):
     ------
     X_train : np.array
         Training data.
+    
     y_train : np.array
         Labels.
     Returns
@@ -17,8 +18,8 @@ def train_model(X_train, y_train):
     model
         Trained machine learning model.
     """
-
-    pass
+    model = GradientBoostingClassifier(n_estimators = 100)
+    model.fit(X_train, y_train)
 
 
 def compute_model_metrics(y, preds):
@@ -31,6 +32,7 @@ def compute_model_metrics(y, preds):
         Known labels, binarized.
     preds : np.array
         Predicted labels, binarized.
+    
     Returns
     -------
     precision : float
@@ -52,9 +54,11 @@ def inference(model, X):
         Trained machine learning model.
     X : np.array
         Data used for prediction.
+    
     Returns
     -------
     preds : np.array
         Predictions from the model.
     """
-    pass
+    pred = model.predict(X)
+    return ">50k" if pred[0] else "<50k"
