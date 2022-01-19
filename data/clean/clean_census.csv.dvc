@@ -1,0 +1,5 @@
+outs:
+- md5: fe3f6b358fdccae77abab1571ca58d5f
+  size: 3015225
+  path: clean_census.csv
+  isexec: true
