@@ -1,4 +1,4 @@
 [core]
     remote = s3-remote
 ['remote "s3-remote"']
-    url = http://udacity-dvc-1.s3-website.ap-south-1.amazonaws.com
+    url = s3://udacity-dvc-1
