@@ -1,101 +1,62 @@
-# Script to train machine learning model.
-from json import encoder
-import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from ml.data import process_data
-from ml.model import train_model
-from joblib import dump, load
-from ml.model import inference
-from ml.model import compute_model_metrics
-from ml.model import compute_score_per_slice
-import logging
+
+import pickle
+
+from ml.data import import_data, process_data
+from ml.model import train_model, model_metrics, inference, slice_census
 
 # Add code to load in the data.
-path = os.path.join(
-    os.getcwd(), 
-    "data/clean/clean_census.csv")
+path = "./data/clean/clean_census.csv"
+data = import_data(path)
 
-def train_test_data(path):
-    """
-    Get data and split into train & test sets.
+def go():
 
-    Returns
-    ----------
-    data, train_data, test_data, cat_features
-    """
-    data = pd.read_csv(path)
-    
     train, test = train_test_split(data, test_size=0.20)
-    
+
     cat_features = [
-        "workclass",
-        "education",
-        "marital-status",
-        "occupation",
-        "relationship",
-        "race",
-        "sex",
-        "native-country",
-    ]
-    
-    return train, test, cat_features
+    "workclass",
+    "education",
+    "marital-status",
+    "occupation",
+    "relationship",
+    "race",
+    "sex",
+    "native-country",]
 
-
-def train_save_model(train, cat_features):
-    """
-    Train and dump model
-
-    Returns
-    -------
-
-    """
     X_train, y_train, encoder, lb = process_data(
-        train, 
-        categorical_features=cat_features, 
-        label="salary", 
-        training=True
-    )
+    train, categorical_features=cat_features, label="salary", training=True)
 
-    trained_model = train_model(X_train, y_train)
+    model = train_model(X_train, y_train)
 
-    dump(trained_model, "model/trained_model.joblib")
-    dump(encoder, "model/encoder.joblib")
-    dump(lb, "model/lb.joblib")
+    X_test, y_test,_ ,_ = process_data(test,
+                            categorical_features=cat_features,
+                            label="salary",
+                            training=False,
+                            encoder=encoder,
+                            lb=lb)
 
+    y_pred = model.predict(X_test)
 
-def test_model(test, cat_features):
+    slice_census_data = slice_census(test,
+                                y_test,
+                                y_pred,
+                                cat_features)
+    
+    slice_census_data.to_csv("./data/slice_output.txt", 
+                    header=None, 
+                    index=None, 
+                    sep=" ", 
+                    mode="a")
 
-    trained_model = load("model/trained_model.joblib")
-    encoder = load("model/encoder.joblib")
-    lb = load("model/lb.joblib")
+    filename = "./model/model.pkl"
+    pickle.dump(model, open(filename, "wb"))
 
-    X_test, y_test, _, _ =  process_data(
-        test, 
-        categorical_features=cat_features, 
-        encoder = encoder,
-        lb = lb, 
-        training=False
-    )
+    enc_filename = "./model/encoder.pkl"
+    pickle.dump(encoder, open(enc_filename, "wb"))
 
-    pred = inference(trained_model, X_test)
-
-    precision, recall, fbeta = compute_model_metrics(
-        y_test, 
-        pred
-    )
-
-    logging.info(f"Scores: precision = {precision}, recall = {recall}, fbeta = {fbeta}")
-
-    compute_score_per_slice(
-        trained_model,
-        test,
-        encoder,
-        lb,
-        cat_features
-    )
+    lb_filename = "./model/lb.pkl"
+    pickle.dump(lb, open(lb_filename, "wb"))
 
 if __name__ == '__main__':
-    train, test, cat_features = train_test_data(path)
-    train_save_model(train, cat_features)
-    test_model(test, cat_features)
+    go()

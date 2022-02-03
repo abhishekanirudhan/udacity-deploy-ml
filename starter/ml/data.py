@@ -1,6 +1,11 @@
+import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer, OneHotEncoder
 
+def import_data(path):
+        
+    df = pd.read_csv(path)
+    return df
 
 def process_data(
     X, categorical_features=[], label=None, training=True, encoder=None, lb=None

@@ -1,8 +1,16 @@
-from re import M
+"""
+Helper functions to train, run inference, slice and score 
+a logistic regression 
+
+Author: Abhishek Anirudhan
+Date: Feb 3, 2022
+"""
+
+
+import pandas as pd
 from sklearn.metrics import fbeta_score, precision_score, recall_score
-from sklearn.ensemble import RandomForestClassifier
-from joblib import load
-from ml.data import process_data
+from sklearn.linear_model import LogisticRegression
+
 
 # Optional: implement hyperparameter tuning.
 def train_model(X_train, y_train):
@@ -21,12 +29,30 @@ def train_model(X_train, y_train):
     model
         Trained machine learning model.
     """
-    model = RandomForestClassifier(n_estimators=100)
-    model.fit(X_train, y_train)
+    lr = LogisticRegression(solver="lbfgs", max_iter=2000)
+    model = lr.fit(X_train, y_train)
     return model
 
+def inference(model, X):
+    """ Run model inferences and return the predictions.
 
-def compute_model_metrics(y, preds):
+    Inputs
+    ------
+    model : joblib.dump
+        Trained machine learning model.
+    X : np.array
+        Data used for prediction.
+    
+    Returns
+    -------
+    preds : np.array
+        Predictions from the model.
+    """
+    pred = model.predict(X)
+    return pred
+
+
+def model_metrics(y, preds):
     """
     Validates the trained machine learning model using precision, recall, and F1.
 
@@ -49,53 +75,27 @@ def compute_model_metrics(y, preds):
     return precision, recall, fbeta
 
 
-def inference(model, X):
-    """ Run model inferences and return the predictions.
-
-    Inputs
-    ------
-    model : joblib.dump
-        Trained machine learning model.
-    X : np.array
-        Data used for prediction.
+def slice_census(X_test, y_test, y_pred, features):
+    """
+    Calcule metrics on a slice of the data
+    """
     
-    Returns
-    -------
-    preds : np.array
-        Predictions from the model.
-    """
-    pred = model.predict(X)
-    return pred
+    df = X_test.drop(["salary"], axis=1)
+    df["salary"] = y_test
+    df["salary_pred"] = y_pred
 
-def compute_score_per_slice(trained_model, test, encoder,
-                            lb, cat_features):
-    """
-    Compute score per category class slice
-    Parameters
-    ----------
-    trained_model
-    test
-    encoder
-    lb
-    Returns
-    -------
-    """
-    with open('model/slice_output.txt', 'w') as file:
-        for category in cat_features:
-            for cls in test[category].unique():
-                temp_df = test[test[category] == cls]
+    slices = []
+    for feature in features:
+        for val in df[feature].unique():
+            precision, recall, fbeta = model_metrics(
+                df[df[feature]==val]["salary"],
+                df[df[feature]==val]["salary_pred"]
+            )
+            slices.append([val, precision, recall, fbeta])
 
-                x_test, y_test, _, _ = process_data(
-                    temp_df,
-                    categorical_features=cat_features, training=False,
-                    label="salary", encoder=encoder, lb=lb)
-
-                pred = trained_model.predict(x_test)
-
-                prc, rcl, fb = compute_model_metrics(y_test, pred)
-
-                metric_info = "[%s]-[%s] Precision: %s " \
-                              "Recall: %s FBeta: %s" % (category, cls,
-                                                        prc, rcl, fb)
-                logging.info(metric_info)
-                file.write(metric_info + '\n')
+    return pd.DataFrame(
+        slices,
+        columns=["Category",
+                "Precision",
+                "Recall",
+                "Fbeta"])
