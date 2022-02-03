@@ -1,5 +1,7 @@
 import os
-import unittest
+import pytest
+import json
+
 from fastapi.testclient import TestClient
 from main import app
 
@@ -20,18 +22,23 @@ def test_pred_post_high():
     Enter a list of parameters knowing the answer will be > 50k
     """
     higher_parameters = {
-        "workclass": "Private",
-        "education": "Masters",
-        "marital_status": "Married-civ-spouse",
-        "occupation": "Prof-specialty",
-        "relationship": "Husband",
-        "race": "White",
-        "sex": "Male",
-        "native_country": "United-States"
+        'age': 31, 
+        'workclass': 'Private',
+        'education': 'Masters',
+        'marital-status':'Never-married',
+        'occupation':'Prof-speciality',
+        'relationship':'Not-in-family',
+        'race':'White',
+        'sex':'Female',
+        'capital-gain':14000,
+        'capital-loss':0,
+        'hours-per-week':55,
+        'native-country':'United-States'
     }
 
 
-    r = client.post("/", json=higher_parameters)
+    r = client.post("/predict", json=higher_parameters)
+
     assert r.status_code == 200
     assert r.json() == "Salary > 50k"
 
@@ -40,17 +47,22 @@ def test_pred_post_low():
     Enter a list of parameters knowing the answer will be <= 50k
     """
     under_parameters = {
-        "workclass": "Private",
-        "education": "Some-college",
-        "marital_status": "Never-married",
-        "occupation": "Machine-op-inspct",
-        "relationship": "Unmarried",
-        "race": "White",
-        "sex": "Male",
-        "native_country": "Puerto-Rico"
+        'age': 22, 
+        'workclass': 'Private',
+        'education': '11th',
+        'marital-status':'Never-married',
+        'occupation':'Handlers-cleaners',
+        'relationship':'Not-in-family',
+        'race':'White',
+        'sex':'Male',
+        'capital-gain':10,
+        'capital-loss':0,
+        'hours-per-week':55,
+        'native-country':'Honduras'
     }
 
 
-    r = client.post("/", json=under_parameters)
+    r = client.post("/predict", json=under_parameters)
+
     assert r.status_code == 200
     assert r.json() == "Salary is <= 50k"

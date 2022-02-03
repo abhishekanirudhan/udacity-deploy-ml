@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import pandas as pd
 import joblib
 import os
+import uvicorn
 
 from starter.ml.data import process_data
 
@@ -26,14 +27,19 @@ lb = joblib.load(lb_pkl)
 
 
 class Input(BaseModel):
-    workclass: str
-    education: str
-    marital_status: str
-    occupation: str
-    relationship: str
-    race: str
-    sex: str
-    native_country: str
+    age: int = Field(..., example = 22)
+    workclass: str = Field(..., example = 'Never-worked')
+    education: str = Field(..., example = 'Doctorate')
+    marital_status: str = Field(..., example = 'Separated', alias='marital-status')
+    occupation: str = Field(..., example = 'Craft-repair')
+    relationship: str = Field(..., example = 'Husband')
+    race: str = Field(..., example = 'Other')
+    sex: str = Field(..., example = 'Female')
+    capital_gain: int = Field(..., alias='capital-gain')
+    capital_loss: int = Field(..., alias='capital-loss')
+    hours_per_week: int = Field(..., alias='hours-per-week')
+    native_country: str = Field(..., example = 'India', alias='native-country')
+
 
 app = FastAPI()
 
@@ -41,10 +47,11 @@ app = FastAPI()
 async def welcome():
     return {"Greetings": "Welcome to my ML Model!"}
 
-@app.post("/")
+@app.post("/predict")
 async def predictions(item:Input):
 
     inputs = {
+        "age": [item.age],
         "workclass": [item.workclass],
         "education": [item.education],
         "marital-status": [item.marital_status],
@@ -52,6 +59,9 @@ async def predictions(item:Input):
         "relationship": [item.relationship],
         "race": [item.race],
         "sex": [item.sex],
+        "capital-gain": [item.capital_gain],
+        "capital-loss": [item.capital_loss],
+        "hours-per-week": [item.hours_per_week],
         "native-country": [item.native_country]
     }
 
@@ -83,3 +93,4 @@ async def predictions(item:Input):
         output = "Salary > 50k"
 
     return output
+
