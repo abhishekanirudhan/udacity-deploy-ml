@@ -93,9 +93,11 @@ def slice_census(X_test, y_test, y_pred, features):
             )
             slices.append([val, precision, recall, fbeta])
 
-    return pd.DataFrame(
+    slice_df = pd.DataFrame(
         slices,
         columns=["Category",
                 "Precision",
                 "Recall",
                 "Fbeta"])
+    
+    return slice_df

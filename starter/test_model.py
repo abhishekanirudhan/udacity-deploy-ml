@@ -4,8 +4,10 @@ import pytest
 import sys
 import logging
 import os
+from sklearn.model_selection import train_test_split
 
-from ml.data import import_data
+from starter.ml.data import import_data, process_data
+from starter.ml.model import train_model, inference, model_metrics
 
 
 logging.basicConfig(level=logging.INFO,
@@ -20,7 +22,7 @@ data_folder = os.path.abspath("./data/clean/")
 def load_data():
     
     path = os.path.join(data_folder, "clean_census.csv")
-    data = import_data(path)
+    data = pd.read_csv(path)
     return data
 
 def test_import_data(load_data):
@@ -29,13 +31,12 @@ def test_import_data(load_data):
     assert load_data.shape[1] > 0
 
 def test_columns_names(load_data):
+
     expected_cols = [
         "age",
         "workclass",
-        "fnlwgt",
         "education",
-        "education-num",
-        "marital-status",
+        "marital-status",        
         "occupation",
         "relationship",
         "race",
@@ -44,7 +45,7 @@ def test_columns_names(load_data):
         "capital-loss",
         "hours-per-week",
         "native-country",
-        "income"
+        "salary"
     ]
 
     curr_cols = load_data.columns.values
