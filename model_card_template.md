@@ -19,7 +19,7 @@
     * Precision: ```0.7078```
     * Recall: ```0.5976```
     * F1 Score: ```0.6481```
-* A breakdown of model performance on slices of the dataset can be found [here]()
+* A breakdown of model performance on slices of the dataset can be found [here](https://github.com/abhishekanirudhan/udacity-deploy-ml/blob/main/data/slice_output.txt)
 
 ## Ethical Considerations
 * Given that we're dealing with demographic data including sex and race, we should be vary of the model picking up inherent bias.
