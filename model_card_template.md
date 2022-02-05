@@ -15,7 +15,10 @@
 * 20% of the cleaned data was held back for testing.
 
 ## Metrics
-* The model is evaluated by precision, recall, and F1 scores.
+* The model is evaluated by precision, recall, and F1 scores:
+    * Precision: ```0.7078```
+    * Recall: ```0.5976```
+    * F1 Score: ```0.6481```
 * A breakdown of model performance on slices of the dataset can be found [here]()
 
 ## Ethical Considerations

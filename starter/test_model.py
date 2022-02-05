@@ -22,7 +22,7 @@ data_folder = os.path.abspath("./data/clean/")
 def load_data():
     
     path = os.path.join(data_folder, "clean_census.csv")
-    data = pd.read_csv(path)
+    data = import_data(path)
     return data
 
 def test_import_data(load_data):
