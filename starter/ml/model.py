@@ -85,6 +85,16 @@ def slice_census(X_test, y_test, y_pred, features):
     df["salary_pred"] = y_pred
 
     slices = []
+
+    precision_overall, recall_overall, fbeta_overall = model_metrics(
+        y_test, y_pred
+    )
+
+    slices.append(['Overall',
+        precision_overall,
+        recall_overall,
+        fbeta_overall])
+
     for feature in features:
         for val in df[feature].unique():
             precision, recall, fbeta = model_metrics(

@@ -60,3 +60,40 @@ def test_age_range(load_data, min_age=0, max_age=100):
 
     assert np.sum(~ages) == 0
     logger.info("Age column has ages below or above min/max age")
+
+def test_model_inference(load_data):
+    
+    train, test = train_test_split(load_data, test_size=0.2)
+
+    
+    cat_features = [
+    "workclass",
+    "education",
+    "marital-status",
+    "occupation",
+    "relationship",
+    "race",
+    "sex",
+    "native-country",
+    ]
+
+    X_train, y_train, encoder, lb = process_data(
+    train, categorical_features=cat_features, label="salary", training=True)
+
+
+    X_test, y_test, encoder, lb = process_data(
+    train, categorical_features=cat_features, label="salary", training=True)
+
+
+    #train model from model.py
+    model = train_model(X_train, y_train)
+
+    #Making predictions with inference from model.py
+    predictions = inference(model, X_test)
+
+    #collecting metrics to see if the predictions are happening
+    precision, recall, fbeta = model_metrics(y_test, predictions)
+
+    assert precision > 0
+    assert recall > 0
+    assert fbeta > 0
