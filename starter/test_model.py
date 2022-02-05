@@ -85,13 +85,10 @@ def test_model_inference(load_data):
     train, categorical_features=cat_features, label="salary", training=True)
 
 
-    #train model from model.py
     model = train_model(X_train, y_train)
 
-    #Making predictions with inference from model.py
     predictions = inference(model, X_test)
-
-    #collecting metrics to see if the predictions are happening
+    
     precision, recall, fbeta = model_metrics(y_test, predictions)
 
     assert precision > 0
