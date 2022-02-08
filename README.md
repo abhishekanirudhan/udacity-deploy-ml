@@ -30,5 +30,5 @@ curl --header "Content-Type: application/json" \
 Alternatively, try the `requests` module via `python`
 
 ```
-python sample_api_requests.py
+python sample_api_request.py
 ```
